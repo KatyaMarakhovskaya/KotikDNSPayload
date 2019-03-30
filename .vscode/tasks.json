@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build hello world",
+            "type": "shell",
+            "command": "nasm -f elf -o hotdog.o hotdog.asm; gcc -m32 -o hotdog hotdog.o",
+        
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
