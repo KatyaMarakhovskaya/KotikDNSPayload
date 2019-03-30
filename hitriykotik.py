@@ -466,6 +466,7 @@ f.close()
 
 
 try:
+    print "[+] Nasm Compiling........\n"
     os.system("nasm -f elf -o hitriykotik.o hitriykotik.asm")  # old and deprecated, it works though....
 except OSError as e:
     if e.errno == os.errno.ENOENT:
@@ -477,6 +478,7 @@ except OSError as e:
         raise
 
 try:
+    print "[+] Objdumping........\n"
     objdump = 'for i in $(objdump -d hitriykotik.o | tr "\t" " " | tr " " "\n" | grep -E "^[0-9a-f]{2}$" ) ; do echo -n "\\x$i" ; done'
     os.system(objdump)
     print "\n"
