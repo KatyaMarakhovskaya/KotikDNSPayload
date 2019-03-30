@@ -1,6 +1,8 @@
 import binascii
 import socket
 
+#This was only to understand DNS and us a test script . 
+#Nothing more.
 
 def send_udp_message(message, address, port):
     """send_udp_message sends a message to UDP server

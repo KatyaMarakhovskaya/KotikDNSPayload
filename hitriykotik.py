@@ -54,8 +54,8 @@ print """
 
 
 
-print "Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have something special in the market place for you! \n \
-!!!!! A Reverse DNS TCP Payload For Linux !!!!! \n Tell Me , a few things and I will generate the shellcode for you!"  
+print "Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have something special in the market place for you! \n\n \
+!!!!! A Reverse DNS TCP Payload For Linux !!!!! \n\n Tell Me , a few things and I will generate the shellcode for you!"  
 
 
 domainname = raw_input("[+] Tell Me The Domain You wish To Connect Back To : ")
