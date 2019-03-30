@@ -461,12 +461,12 @@ redirectIO:
 print "[+] I Am Making Your PayLoad Right Now...."
 f = open("hitriykotik.asm", "w+")
 f.write(PayLOAD)
-print "[+] ASM Created Successfully....\n"
+print "[+] ASM Created Successfully...."
 f.close()
 
 
 try:
-    print "[+] Nasm Compiling........\n"
+    print "[+] Nasm Compiling........"
     os.system("nasm -f elf -o hitriykotik.o hitriykotik.asm")  # old and deprecated, it works though....
 except OSError as e:
     if e.errno == os.errno.ENOENT:
@@ -478,16 +478,17 @@ except OSError as e:
         raise
 
 try:
-    print "[+] Objdumping........\n"
+    print "[+] Objdumping........\n\n"
     objdump = 'for i in $(objdump -d hitriykotik.o | tr "\t" " " | tr " " "\n" | grep -E "^[0-9a-f]{2}$" ) ; do echo -n "\\x$i" ; done'
     os.system(objdump)
     print "\n"
+    
 except OSError as e:
     if e.errno == os.errno.ENOENT:
-         print "[-] Something Went Wrong , Do You Have Objdump Installed? \n"
+         print "[-] Something Went Wrong , Do You Have Objdump Installed?"
          sys.exit(1)
     else:
-        print "[-] Something Went Wrong , I Think Something Broke Using Objdump...\n"
+        print "[-] Something Went Wrong , I Think Something Broke Using Objdump..."
         sys.exit(1)
         raise
 
