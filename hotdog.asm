@@ -92,6 +92,26 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 section     .text
 global      main   ;must be declared for linker (ld)
 
