@@ -232,7 +232,6 @@ main:
     add esp, eax
     sub esp, 4 
     mov eax ,[esp]
-    ;bswap eax
     push eax ; Probably not needed, I just want to ensure it's saved. 
     mov ebp, eax
 
