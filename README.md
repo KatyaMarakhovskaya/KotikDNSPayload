@@ -30,10 +30,6 @@ Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have som
 
 
 
-
-
-
-
 # To Run:
 simply run ...
 ```
@@ -50,3 +46,28 @@ Linux is desireable, but not required.
 3. objectdump
 
 
+# For Testing:
+Make a C file and compile using
+```
+gcc -m32 test.c -o test
+``` 
+```
+#include<stdio.h>
+#include<string.h>
+
+const char shellcode[] =  "\0x00\YOUR\SHELL\CODE\0x00\";
+
+
+
+int main(){
+    int (*ret)() = (int(*)())shellcode;
+    ret();
+}
+
+
+```
+
+# Known Issues:
+I am reading from a socket For the DNS response. Read will wait until the socket has a buffer to read from. This means that if you receive no DNS response , your program will wait indefinitley. 
+
+# Stay Secure My Friends!

