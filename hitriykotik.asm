@@ -158,7 +158,7 @@ main:
     ; push 0x00000100
     ; push 0x0001AAAA
 
-      push 0x00000000
+  push 0x00000000
   push 0x01000100
   push 0x006d6f63
   push 0x03766564
