@@ -29,19 +29,19 @@ main:
         mov rdi, rax                            ; sockfd
 ; ####################### DNS REQUEST
 
-        mov rax, 0x01000100006d6f63
-        push rax
-        mov rax, 0x0376656474696b74
-        push rax
-        mov rax, 0x6f6f720a00000000
-        push rax
-        mov rax, 0x000001000001AAAA
-        push rax
+     ;    mov rax, 0x01000100006d6f63
+     ;   push rax
+     ;   mov rax, 0x0376656474696b74
+     ;   push rax
+     ;   mov rax, 0x6f6f720a00000000
+     ;   push rax
+     ;   mov rax, 0x000001000001AAAA
+     ;   push rax
 ; ############################### 
 
         mov rsi ,rsp
-        mov rdx, 32                   ;Google IP  port 53  INET Family       
-        mov rax, 0x0808080835000002   ; 8.8.8.8.8 - 0x35 - 00 00 02 
+        mov rdx, 32 ; len of bytes    ; Google IP  port 53  INET Family       
+        mov rax, 0x0101010135000002   ; 8.8.8.8.8 - 0x35 - 00 00 02 
         push rax
         mov rax, 44                             ; Send Syscall
       
