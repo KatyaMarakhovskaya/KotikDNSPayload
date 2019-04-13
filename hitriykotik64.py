@@ -428,6 +428,9 @@ loop:
 
 """.format(PrintableEndianRequest, encodedport)
 
+print PayLOAD
+
+
 print "[+] I Am Making Your PayLoad Right Now...."
 f = open("hitriykotik.asm", "w+")
 f.write(PayLOAD)

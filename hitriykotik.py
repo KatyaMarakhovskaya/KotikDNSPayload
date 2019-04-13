@@ -275,6 +275,12 @@ global      main   ;must be declared for linker (ld)
    ; 00 01 - QTYPE 
    ; 00 01 - QCLASS
 
+
+
+
+
+
+
    ; DNS ANSWER!
    ; aa aa
    ; 81 80
