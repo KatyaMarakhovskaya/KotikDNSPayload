@@ -70,4 +70,4 @@ int main(){
 # Known Issues:
 I am reading from a socket For the DNS response. Read will wait until the socket has a buffer to read from. This means that if you receive no DNS response , your program will wait indefinitley. 
 
-# Stay Secure My Friends!
+### Stay Secure My Friends!
